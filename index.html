@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ตำกระฉูด | สั่งอาหาร</title>
+<meta name="theme-color" content="#fffaf5">
+<meta name="description" content="เลือกเมนูอาหารและตรวจสอบรายการที่สั่งที่ร้านตำกระฉูด">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app" id="app">
+  <a class="skip-link" href="#menu">ข้ามไปยังเมนูอาหาร</a>
+
+  <!-- Header -->
+  <header class="topbar">
+    <div class="topbar-inner">
+    <div class="brand"><strong>ตำกระฉูด<span>.</span></strong><small>สั่งอาหารที่โต๊ะ</small></div>
+    <button class="table-pill" id="tableBtn" aria-label="ข้อมูลโต๊ะ">
+      <span id="tableName">T01</span><span class="sep"></span><span id="customerName">ผู้สั่ง A</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="top-actions">
+      <button class="icon-btn flag" id="langBtn" aria-label="เปลี่ยนภาษา">
+        <svg viewBox="0 0 36 36" width="34" height="34"><clipPath id="c"><circle cx="18" cy="18" r="17"/></clipPath><g clip-path="url(#c)"><rect width="36" height="36" fill="#A51931"/><rect y="6" width="36" height="24" fill="#F4F5F8"/><rect y="12" width="36" height="12" fill="#2D2A4A"/></g></svg>
+      </button>
+      <button class="icon-btn" id="callBtn" aria-label="เรียกพนักงาน">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 18h18M4.5 18a7.5 7.5 0 0 1 15 0M12 6.5V5M10.5 5h3"/></svg>
+        <span class="action-label">เรียกพนักงาน</span>
+      </button>
+      <button class="icon-btn" id="ordersBtn" aria-label="รายการที่สั่ง">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-2.3-1.5L14.3 21 12 19.5 9.7 21l-2.4-1.5L5 21z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg>
+        <span class="dot" id="ordersDot"></span>
+        <span class="action-label">รายการที่สั่ง</span>
+      </button>
+    </div>
+    </div>
+  </header>
+
+  <!-- Category tabs -->
+  <nav class="tabs" id="tabsBar" aria-label="หมวดหมู่เมนูอาหาร">
+    <div class="tabs-inner">
+    <button class="icon-btn small" id="searchBtn" aria-label="ค้นหาเมนู">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    </button>
+    <button class="icon-btn small" id="catBtn" aria-label="หมวดหมู่ทั้งหมด">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r=".8" fill="currentColor"/><circle cx="4.5" cy="12" r=".8" fill="currentColor"/><circle cx="4.5" cy="18" r=".8" fill="currentColor"/></svg>
+    </button>
+    <div class="tab-scroll" id="tabScroll"></div>
+    </div>
+  </nav>
+
+  <main id="menu" class="menu" tabindex="-1">
+    <div class="menu-intro">
+      <h1>เมนูอาหาร</h1>
+      <p>เลือกเมนูที่ชอบ แล้วตรวจสอบตะกร้าก่อนส่งออเดอร์</p>
+    </div>
+    <div id="menuSections"></div>
+  </main>
+
+  <!-- Cart bar -->
+  <div class="cartbar-wrap" id="cartbarWrap" hidden>
+    <button class="cartbar" id="cartbar">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3h2.6l2.2 11.2a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.5L21 7H6"/><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/></svg>
+      <span id="cartbarCount">0 รายการในตะกร้า</span>
+      <span class="spacer"></span>
+      <span id="cartbarTotal">฿0.00</span>
+    </button>
+  </div>
+
+  <!-- Search overlay -->
+  <section class="search-view" id="searchView" role="dialog" aria-label="ค้นหาเมนู" hidden>
+    <div class="search-head">
+      <label class="search-field">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="searchInput" type="search" aria-label="ค้นหาชื่อเมนู" placeholder="ค้นหาชื่อเมนู" autocomplete="off">
+      </label>
+      <button class="link-btn" id="searchCancel">ปิด</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </section>
+
+  <!-- Item detail -->
+  <section class="item-view" id="itemView" role="dialog" aria-labelledby="itemName" hidden>
+    <div class="item-topbar" id="itemTopbar">
+      <button class="icon-btn" id="itemClose2" aria-label="ปิด"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <h2 id="itemTopTitle"></h2>
+    </div>
+    <div class="item-scroll" id="itemScroll">
+      <div class="item-hero"><img id="itemImg" alt=""></div>
+      <button class="close-round" id="itemClose" aria-label="ปิด">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="item-body">
+        <h2 id="itemName"></h2>
+        <p class="item-from" id="itemFrom">เริ่มต้น</p>
+        <p class="item-price" id="itemPrice"></p>
+        <div id="itemOptions"></div>
+        <label class="note-label" for="itemNote">รายละเอียดเพิ่มเติม (ถ้ามี)</label>
+        <textarea id="itemNote" rows="4" placeholder="ระบุข้อความ" maxlength="120"></textarea>
+      </div>
+    </div>
+    <div class="item-foot">
+      <div class="stepper big">
+        <button id="qtyMinus" aria-label="ลดจำนวน"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5"/><path d="M7.5 12h9"/></svg></button>
+        <span id="qtyVal">1</span>
+        <button id="qtyPlus" aria-label="เพิ่มจำนวน"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5"/><path d="M7.5 12h9M12 7.5v9"/></svg></button>
+      </div>
+      <button class="btn-primary grow" id="addBtn">เพิ่มลงตะกร้า ฿0</button>
+    </div>
+  </section>
+
+  <!-- Cart -->
+  <section class="page" id="cartView" role="dialog" aria-labelledby="cartTitle" hidden>
+    <header class="page-head">
+      <button class="icon-btn" data-close="cartView" aria-label="ปิด"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="page-title"><h2 id="cartTitle">ตะกร้า</h2></div>
+    </header>
+    <div class="page-body" id="cartList"></div>
+    <footer class="page-foot" id="cartFoot">
+      <div class="total-row"><span>รวมทั้งหมด</span><span class="total-val"><b id="cartTotal">฿0.00</b><button class="info" data-info aria-label="ข้อมูลยอดรวม">i</button></span></div>
+      <button class="btn-primary full" id="submitOrder">สั่ง 0 รายการ</button>
+    </footer>
+  </section>
+
+  <!-- Orders -->
+  <section class="page" id="ordersView" role="dialog" aria-labelledby="ordersTitle" hidden>
+    <header class="page-head">
+      <button class="icon-btn" data-close="ordersView" aria-label="ปิด"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="page-title"><h2 id="ordersTitle">รายการที่สั่ง</h2><small id="ordersTime">ข้อมูล ณ เวลา --:--</small></div>
+    </header>
+    <div class="page-body">
+      <p class="order-policy">รายการที่ส่งเข้าครัวแล้วไม่สามารถยกเลิกได้</p>
+      <div id="ordersList"></div>
+    </div>
+    <footer class="page-foot">
+      <div class="total-row"><span id="ordersCount">0 รายการ</span><span class="total-val"><b id="ordersTotal">฿0.00</b><button class="info" data-info aria-label="ข้อมูลยอดรวม">i</button></span></div>
+      <button class="btn-outline full" id="billBtn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-2.3-1.5L14.3 21 12 19.5 9.7 21l-2.4-1.5L5 21z"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg>
+        บิลค่าอาหาร
+      </button>
+    </footer>
+  </section>
+
+  <!-- Bill -->
+  <section class="page" id="billView" role="dialog" aria-labelledby="billTitle" hidden>
+    <header class="page-head">
+      <button class="icon-btn" data-close="billView" aria-label="ย้อนกลับ"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg></button>
+      <div class="page-title"><h2 id="billTitle">บิลค่าอาหาร</h2></div>
+    </header>
+    <div class="page-body flush">
+      <div class="bill-list" id="billList"></div>
+      <div class="bill-sum">
+        <div class="bs-row muted"><span>รวม</span><span id="billSub">฿0.00</span></div>
+        <div class="bs-row strong"><span>ราคารวม</span><span id="billTotal">฿0.00</span></div>
+      </div>
+      <div class="pay-section">
+        <h3>วิธีการชำระเงิน</h3>
+        <div class="pay-notice">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v5.5M12 7.6v.1"/></svg>
+          <span>ชำระเงินค่าอาหาร เมื่อคุณทานเสร็จเรียบร้อยแล้วเท่านั้น</span>
+        </div>
+        <label class="pay-option">
+          <span class="pay-ic" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 48 48"><rect x="6" y="30" width="36" height="12" rx="2" fill="#5D6B82"/><rect x="9" y="22" width="12" height="9" rx="1.5" fill="#8FA0B8"/><circle cx="31" cy="15" r="6" fill="#F6C9A5"/><path d="M25 13.5c0-4 2.6-6.5 6-6.5s6 2.5 6 6.5c-1.2-1.8-3.5-2.6-6-2.6s-4.8.8-6 2.6z" fill="#3A3A40"/><path d="M22 31c0-6 4-9.5 9-9.5s9 3.5 9 9.5z" fill="#F2B23A"/><path d="M28 22.3 31 27l3-4.7" fill="#2FA0D8"/></svg></span>
+          <span class="pay-name">ชำระเงินกับพนักงาน</span>
+          <input type="radio" name="pay" value="staff" checked>
+          <span class="radio" aria-hidden="true"></span>
+        </label>
+      </div>
+    </div>
+    <footer class="page-foot">
+      <button class="btn-primary full" id="payContinue">ดำเนินการต่อ</button>
+    </footer>
+  </section>
+
+  <!-- Check bill called -->
+  <section class="page plain" id="checkView" role="dialog" aria-labelledby="checkTitle" hidden>
+    <header class="page-head">
+      <button class="icon-btn" data-close="checkView" aria-label="ปิด"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </header>
+    <div class="page-body check-body">
+      <div class="illus" id="checkIllus"></div>
+      <span class="table-chip">T01</span>
+      <h2 class="check-title" id="checkTitle">เรียกเช็คบิลแล้ว</h2>
+      <p class="check-sub">กรุณารอพนักงานสักครู่ หรือติดต่อเคาน์เตอร์</p>
+      <div class="check-card">
+        <h3 id="checkCount">รายการอาหารที่สั่ง (0)</h3>
+        <div id="checkList"></div>
+        <div class="check-sum">
+          <div class="bs-row muted"><span>ค่าอาหาร</span><span id="checkSub">0.00฿</span></div>
+          <div class="bs-row accent"><span>รวมทั้งหมด</span><span id="checkTotal">0.00฿</span></div>
+        </div>
+      </div>
+      <button class="demo-btn" id="demoPaid">พนักงานรับชำระเงินเรียบร้อย</button>
+    </div>
+  </section>
+
+  <!-- Paid -->
+  <section class="page plain" id="paidView" role="dialog" aria-labelledby="paidTitle" hidden>
+    <div class="paid-body">
+      <div class="chef" id="chefIllus"></div>
+      <h2 id="paidTitle">การชำระเงินของคุณสำเร็จแล้ว</h2>
+      <p>ขอบคุณที่ใช้บริการตำกระฉูดครับ</p>
+    </div>
+  </section>
+
+  <!-- Category sheet -->
+  <div class="scrim" id="catScrim" hidden></div>
+  <section class="sheet" id="catSheet" role="dialog" hidden aria-label="หมวดหมู่ทั้งหมด">
+    <div class="sheet-head">
+      <h3>หมวดหมู่ทั้งหมด</h3>
+      <button class="icon-btn small" id="catClose" aria-label="ปิด"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+    </div>
+    <label class="search-field">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="catSearch" type="search" aria-label="ค้นหาหมวดหมู่" placeholder="ค้นหาหมวดหมู่" autocomplete="off">
+    </label>
+    <ul class="cat-list" id="catList"></ul>
+  </section>
+
+  <!-- Dialog -->
+  <div class="dialog-scrim" id="dialog" hidden>
+    <div class="dialog" role="alertdialog" aria-labelledby="dlgTitle">
+      <div class="dlg-icon" id="dlgIcon"></div>
+      <h3 id="dlgTitle"></h3>
+      <p id="dlgText"></p>
+      <div class="dlg-notice" id="dlgNotice" hidden></div>
+      <div class="dlg-actions" id="dlgActions"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</div>
+<script src="app.js"></script>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://perplexity.localhost","http://localhost:1420","http://127.0.0.1:1420","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  const DEFAULT_LINE_HEIGHT = 16;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  const PICK_CAPABILITIES = ["pick"];
+  const PICK_CHAIN_LENGTH = 4;
+  const PICK_MAX_TEXT_CHARS = 120;
+  const PICK_MAX_HTML_CHARS = 300;
+
+  function truncate(value, maxChars) {
+    return value.length > maxChars ? value.slice(0, maxChars - 1) + "…" : value;
+  }
+
+  function isPickableElement(element) {
+    return (
+      element instanceof Element &&
+      element !== document.documentElement &&
+      element !== document.body
+    );
+  }
+
+  function resolvePickTarget(x, y) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const element = document.elementFromPoint(x, y);
+    return isPickableElement(element) ? element.closest("svg") || element : null;
+  }
+
+  function pickLabel(element) {
+    if (element.id) return element.localName + "#" + element.id;
+    return [element.localName].concat(Array.from(element.classList).slice(0, 2)).join(".");
+  }
+
+  // Only attributes that help find the element in source. data-* values and URL
+  // query strings or fragments can carry tokens.
+  const PICK_ATTRIBUTES = new Set([
+    "id",
+    "class",
+    "name",
+    "type",
+    "role",
+    "alt",
+    "aria-label",
+    "href",
+    "src",
+  ]);
+
+  function pickAttributeValue(attribute) {
+    return attribute.name === "href" || attribute.name === "src"
+      ? attribute.value.split(/[?#]/)[0]
+      : attribute.value;
+  }
+
+  function describePickElement(element) {
+    const chain = [];
+    for (
+      let current = element;
+      isPickableElement(current) && chain.length < PICK_CHAIN_LENGTH;
+      current = current.parentElement
+    ) {
+      chain.unshift(current);
+    }
+    const attributes = Array.from(element.attributes)
+      .filter((attribute) => PICK_ATTRIBUTES.has(attribute.name))
+      .map((attribute) => ` ${attribute.name}="${pickAttributeValue(attribute).replace(/"/g, "&quot;")}"`)
+      .join("");
+    const text = (element.innerText || element.textContent || "").replace(/\s+/g, " ").trim();
+    return {
+      chain: chain.map(pickLabel),
+      html: truncate(`<${element.localName}${attributes}>`, PICK_MAX_HTML_CHARS),
+      text: text ? truncate(text, PICK_MAX_TEXT_CHARS) : undefined,
+    };
+  }
+
+  // Hover asks once per frame, and innerText on a large section forces layout,
+  // so only the rect is re-read while the pointer stays on the same element.
+  // Clicks ask for fresh details since the page may have changed the element.
+  let lastPick = null;
+
+  function describePickTarget(element, fresh) {
+    if (fresh || lastPick?.element !== element) {
+      lastPick = { element, details: describePickElement(element) };
+    }
+    const rect = element.getBoundingClientRect();
+    return {
+      rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height },
+      ...lastPick.details,
+    };
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      capabilities: PICK_CAPABILITIES,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_PICK") {
+      const element = resolvePickTarget(event.data.x, event.data.y);
+      postToTrustedTop({
+        type: "INLINE_EDIT_PICK_RESULT",
+        seq: event.data.seq,
+        target: element ? describePickTarget(element, event.data.fresh === true) : null,
+      });
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_BY") {
+      const { deltaX, deltaY, deltaMode } = event.data;
+      if (!scrollForwarding || !Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return;
+      if (deltaMode !== 0 && deltaMode !== 1 && deltaMode !== 2) return;
+      const lineHeight =
+        parseFloat(getComputedStyle(document.documentElement).lineHeight) || DEFAULT_LINE_HEIGHT;
+      const scaleX = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerWidth : 1;
+      const scaleY = deltaMode === 1 ? lineHeight : deltaMode === 2 ? window.innerHeight : 1;
+      // The selection overlay receives the wheel event instead of this iframe.
+      // Instant scrolling preserves trackpad deltas even on smooth-scroll sites.
+      window.scrollBy({ left: deltaX * scaleX, top: deltaY * scaleY, behavior: "instant" });
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
+</html>
